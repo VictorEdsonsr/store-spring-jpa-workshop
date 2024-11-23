@@ -4,6 +4,7 @@ import com.edson.store.entities.User;
 import com.edson.store.repositories.UserRepository;
 import com.edson.store.service.exceptions.DatabaseException;
 import com.edson.store.service.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,9 +43,14 @@ public class UserService {
     }
 
     public User update(Long id, User user) {
-        User entity = userRepository.getReferenceById(id);
-        updateUser(entity, user);
-        return userRepository.save(entity);
+        try{
+            User entity = userRepository.getReferenceById(id);
+            updateUser(entity, user);
+            return userRepository.save(entity);
+        }catch (EntityNotFoundException e){
+            throw new ResourceNotFoundException(id);
+        }
+
     }
 
     private void updateUser(User entity, User user) {
